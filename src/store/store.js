@@ -3,79 +3,120 @@ import axios from "axios";
 
 const store = createStore({
   data: [],
+  tempNote: null,
   singleData: {},
+  selectedNote: null,
   isLoading: false,
 
-  // Set Storage Data..
+  // Actions
   setData: action((state, payload) => {
     state.data = [...payload];
+    if (payload.length > 0) {
+      state.selectedNote = payload[0]; // Automatically select the first note
+    }
   }),
-
-  // Store / Add data to beggining...
+  setSelectedNote: action((state, payload) => {
+    state.selectedNote = payload;
+  }),
   addData: action((state, payload) => {
-    state.isLoading = true;
-    const size = state.data.length;
-    payload.id = size + 1;
-    state.data?.unshift(payload);
-    state.isLoading = false;
+    const highestId = Math.max(...state.data.map((item) => item.id), 0);
+    payload.id = highestId + 1;
+    state.data.unshift(payload);
+    state.selectedNote = payload; // Set the new note as selected
+    localStorage.setItem("notes", JSON.stringify(state.data));
   }),
-
-  // remove Data Action..
+  setTempNote: action((state, payload) => {
+    state.tempNote = { ...payload };
+    if (state.selectedNote) {
+      state.selectedNote = { ...state.selectedNote, ...payload }; // Live update
+    }
+  }),
   removeData: action((state, id) => {
-    state.isLoading = true;
-    // Clone state.data before filtering
-    const dataClone = state.data.map((proxyItem) => ({ ...proxyItem }));
-    const filteredData = dataClone.filter((item) => {
-      console.log("Compare ID - ", item.id, id);
-
-      return parseInt(item.id) !== parseInt(id);
-    });
-
-    console.log("filtered data - ", filteredData);
-
-    state.data = filteredData;
-    state.isLoading = false;
+    state.data = state.data.filter(
+      (item) => parseInt(item.id) !== parseInt(id)
+    );
+    if (state.selectedNote?.id === id) {
+      state.selectedNote = state.data[0] || null; // Reset selected note
+    }
+    localStorage.setItem("notes", JSON.stringify(state.data));
   }),
-
-  // Update Data Action..
   updateData: action((state, updatedData) => {
-    state.isLoading = true;
-    const dataClone = state.data.map((proxyItem) => ({ ...proxyItem }));
-    const foundIndex = dataClone.findIndex(
+    const foundIndex = state.data.findIndex(
       (item) => parseInt(item.id) === parseInt(updatedData.id)
     );
-
-    console.log("FoundIndex - ", foundIndex);
-
     if (foundIndex !== -1) {
-      dataClone[foundIndex] = { ...updatedData };
-      state.data = dataClone;
+      state.data[foundIndex] = { ...updatedData };
+      const updatedNote = state.data.splice(foundIndex, 1)[0];
+      state.data = [updatedNote, ...state.data];
+      state.selectedNote = updatedNote; // Update selected note
     }
-
-    state.isLoading = false;
+    localStorage.setItem("notes", JSON.stringify(state.data));
+  }),
+  setSingleData: action((state, payload) => {
+    state.singleData = payload;
   }),
 
-  // Specific Data..
-  getSingleData: action((state, id) => {
-    state.isLoading = true;
-    const dataClone = state.data.map((proxyItem) => ({ ...proxyItem }));
-    const foundObj = dataClone?.find(
-      (item) => parseInt(item.id) === parseInt(id)
-    );
-
-    if (foundObj) {
-      state.singleData = foundObj;
-    }
-    state.isLoading = false;
-  }),
-
-  // API CALL USING THUNK..
+  // Thunks
   fetchData: thunk(async (actions) => {
-    const response = await axios.get(
-      "https://jsonplaceholder.typicode.com/posts"
-    );
-    const responseData = response.data.map((todo) => ({ ...todo }));
-    actions.setData(responseData);
+    try {
+      const response = await axios.get("/notes.json");
+      const responseData = response.data.map((todo) => ({ ...todo }));
+      actions.setData(responseData);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
+  }),
+  fetchSingleNote: thunk(async (actions, noteId, { getState }) => {
+    try {
+      const allNotes = getState().data;
+
+      if (!noteId || !Number.isInteger(parseInt(noteId))) {
+        console.error(
+          "Invalid note ID provided! Note ID must be a valid number."
+        );
+        return;
+      }
+
+      if (!allNotes || allNotes.length === 0) {
+        console.warn(
+          "No notes available. Attempting to load from localStorage..."
+        );
+        await actions.loadFromLocalStorage();
+        const updatedNotes = getState().data;
+        if (!updatedNotes || updatedNotes.length === 0) {
+          console.error("Data is still empty after loading from localStorage!");
+          return;
+        }
+      }
+
+      const singleNote = allNotes.find(
+        (note) => parseInt(note.id) === parseInt(noteId)
+      );
+
+      if (singleNote) {
+        actions.setSingleData(singleNote);
+        actions.setSelectedNote(singleNote); // Automatically select the fetched note
+      } else {
+        console.error(`Note not found! ID: ${noteId}`);
+      }
+    } catch (error) {
+      console.error("Error fetching single note:", error);
+    }
+  }),
+
+  loadFromLocalStorage: thunk((actions) => {
+    try {
+      const storedNotes = JSON.parse(localStorage.getItem("notes")) || [];
+      console.log("Stored Notes from LocalStorage:", storedNotes);
+
+      if (storedNotes.length === 0) {
+        console.warn("No notes found in localStorage.");
+      }
+
+      actions.setData(storedNotes);
+    } catch (error) {
+      console.error("Error loading from localStorage:", error);
+    }
   }),
 });
 

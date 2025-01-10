@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "title": "Grocery List",
+    "body": "Milk, eggs, bread, cheese, apples, bananas, coffee"
+  },
+  {
+    "id": 2,
+    "title": "Book Recommendations",
+    "body": "Read 'The Martian' and 'Project Hail Mary' by Andy Weir. Also, check out 'The House in the Cerulean Sea' by T.J. Klune."
+  },
+  {
+    "id": 3,
+    "title": "Coding Project Ideas",
+    "body": "Build a to-do list app with local storage, a simple weather app using an API, or a basic text-based game."
+  },
+  {
+    "id": 4,
+    "title": "Birthday Gift for Mom",
+    "body": "Consider a spa day, a nice piece of jewelry, or a personalized photo album."
+  },
+  {
+    "id": 5,
+    "title": "Learn Spanish Phrases",
+    "body": "Practice 'Hola,' 'Gracias,' 'Por favor,' and 'De nada.' Start with basic greetings and polite expressions."
+  },
+  {
+    "id": 6,
+    "title": "Workout Routine",
+    "body": "30 minutes of cardio, followed by strength training exercises like squats, push-ups, and planks."
+  },
+  {
+    "id": 7,
+    "title": "Meeting Notes - Project X",
+    "body": "Discussed project timelines, budget allocation, and assigned tasks to team members. Next meeting scheduled for Friday."
+  },
+  {
+    "id": 8,
+    "title": "Home Improvement Ideas",
+    "body": "Repaint the living room, replace the old light fixtures, and organize the storage closet."
+  },
+  {
+    "id": 9,
+    "title": "Recipe - Chocolate Chip Cookies",
+    "body": "Combine flour, sugar, butter, eggs, vanilla extract, and chocolate chips. Bake at 375°F for 10-12 minutes."
+  },
+  {
+    "id": 10,
+    "title": "Travel Plans - Next Vacation",
+    "body": "Research destinations in Europe. Consider visiting Italy, France, or Spain. Book flights and accommodation in advance."
+  }
+]

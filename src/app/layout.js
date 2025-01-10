@@ -2,7 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/store/provider";
 import Header from "@/components/common/Header";
-import NoteList from '@/components/common/NoteList';
+import NoteList from "@/components/common/NoteList";
+import AddNoteForm from "@/components/common/AddNoteForm";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,20 +23,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <ReduxProvider>
           <div className="max-w-4xl mx-auto mt-4">
-            {/* HEADER */}
             <Header />
-
-            {/* Main View */}
             <div className="flex gap-2 w-full">
-              {/* Canvas View Area */}
               <div className="w-2/3">{children}</div>
-
-              {/* Common List of Data */}
               <NoteList />
             </div>
           </div>
